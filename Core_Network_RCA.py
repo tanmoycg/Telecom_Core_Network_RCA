@@ -9,7 +9,7 @@ from collections import defaultdict
 
 # Ensure the logs directory exists
 LOG_DIR = "logs"
-NO_OF_LOGS = 2000
+NO_OF_LOGS = 3000
 
 
 # Main execution flow
@@ -118,40 +118,55 @@ def root_cause_analysis(logs, clusters):
 
     Parameters:
         logs (list of dicts): List of alarm logs, where each log is a dictionary.
-        clusters (list): List of cluster IDs corresponding to each log.
+                              Example: {"timestamp": ..., "component": ..., "type": ..., "severity": ...}
+        clusters (list): List of cluster IDs (from DBSCAN) corresponding to each log.
+                         Example: [0, 0, 1, -1, 1, ...]
+                         -1 indicates noise (not part of any cluster).
 
     Returns:
         dict: RCA results with cluster IDs as keys and identified root causes as values.
+              Example:
+              {
+                0: {"Primary Component": "MME", "Primary Alarm Type": "LinkFailure", "Average Severity": 3.5},
+                1: {"Primary Component": "SGW", "Primary Alarm Type": "Overload", "Average Severity": 2.0}
+              }
     """
+    # Dictionary to group logs by cluster ID
+    # Key   = cluster ID
+    # Value = list of log entries that belong to that cluster
     root_causes = defaultdict(list)
 
-    # Group logs by cluster ID
+    # Step 1: Group logs into clusters
     for idx, cluster_id in enumerate(clusters):
         if cluster_id != -1:  # Ignore noise points (-1)
             root_causes[cluster_id].append(logs[idx])
 
+    # Final RCA results dictionary
     rca_results = {}
 
-    # Analyze each cluster
+    # Step 2: For each cluster, analyze logs to extract root cause indicators
     for cluster_id, cluster_logs in root_causes.items():
-        component_counts = {}
-        type_counts = {}
-        total_severity = 0
+        component_counts = {}  # counts of each "component" in the cluster
+        type_counts = {}       # counts of each "alarm type" in the cluster
+        total_severity = 0     # sum of severities, later averaged
 
-        # Count occurrences and sum severity
+        # Step 2a: Traverse all logs in this cluster
         for log in cluster_logs:
+            # Count components (who raised the alarm)
             component_counts[log["component"]] = component_counts.get(log["component"], 0) + 1
+            # Count alarm types (what kind of alarm was raised)
             type_counts[log["type"]] = type_counts.get(log["type"], 0) + 1
+            # Add severity for later averaging
             total_severity += log["severity"]
 
-        # Determine most common component and type
+        # Step 2b: Identify the "dominant" (most frequent) component and type
         most_common_component = max(component_counts, key=component_counts.get)
         most_common_type = max(type_counts, key=type_counts.get)
 
-        # Compute average severity
+        # Step 2c: Compute average severity across all logs in this cluster
         avg_severity = total_severity / len(cluster_logs)
 
-        # Store RCA results
+        # Step 2d: Store the RCA summary for this cluster
         rca_results[cluster_id] = {
             "Primary Component": most_common_component,
             "Primary Alarm Type": most_common_type,
@@ -159,6 +174,7 @@ def root_cause_analysis(logs, clusters):
         }
 
     return rca_results
+
 
 
 if __name__ == "__main__":
