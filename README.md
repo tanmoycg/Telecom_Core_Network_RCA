@@ -31,7 +31,7 @@ This project demonstrates a simple but effective approach:
    git clone https://github.com/tanmoycg/Telecom_Core_Network_RCA.git  
    cd Telecom_Core_Network_RCA
 
-Run the script
+2. Run the script  
 python Core_Network_RCA.py
 
 ## Example Output
