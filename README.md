@@ -34,17 +34,18 @@ This project demonstrates a simple but effective approach:
 Run the script
 python Core_Network_RCA.py
 
-Example Output
+## Example Output
+```json
 {
-  0: {
+  "0": {
       "Primary Component": "Router",
       "Primary Alarm Type": "Link_Failure",
       "Average Severity": 3.5
   },
-  1: {
+  "1": {
       "Primary Component": "Switch",
       "Primary Alarm Type": "Port_Error",
       "Average Severity": 2.0
   }
-}
+}```
 ✦ Created as part of my personal portfolio to showcase data analysis, clustering, and RCA skills for real-world telecom use cases.
