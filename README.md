@@ -28,8 +28,8 @@ This project demonstrates a simple but effective approach:
 
 ## Usage  
 1. Clone this repository  
-   git clone <your-repo-url>
-   cd <your-repo-name>
+   git clone https://github.com/tanmoycg/Telecom_Core_Network_RCA.git
+   cd Telecom_Core_Network_RCA
 
 Run the script
 python Core_Network_RCA.py
